@@ -54,14 +54,14 @@ export default function ProductEditScreen() {
       error: '',
     });
 
-  const [name, setName] = useState('');
-  const [slug, setSlug] = useState('');
+  const [title, setTitle] = useState('');
+  // const [slug, setSlug] = useState('');
   const [price, setPrice] = useState('');
   const [image, setImage] = useState('');
-  const [images, setImages] = useState([]);
+  // const [images, setImages] = useState([]);
   const [category, setCategory] = useState('');
-  const [countInStock, setCountInStock] = useState('');
-  const [brand, setBrand] = useState('');
+  // const [countInStock, setCountInStock] = useState('');
+  const [type, setType] = useState('');
   const [description, setDescription] = useState('');
 
   useEffect(() => {
@@ -69,14 +69,14 @@ export default function ProductEditScreen() {
       try {
         dispatch({ type: 'FETCH_REQUEST' });
         const { data } = await axios.get(`http://localhost:3001/api/products/${productId}`);
-        setName(data.title);
-        setSlug(data.slug);
+        setTitle(data.title);
+        // setSlug(data.slug);
         setPrice(data.price);
         setImage(data.image);
-        setImages(data.image);
+        // setImages(data.image);
         setCategory(data.category);
-        setCountInStock(data.countInStock);
-        setBrand(data.brand);
+        // setCountInStock(data.countInStock);
+        setType(data.type);
         setDescription(data.description);
         dispatch({ type: 'FETCH_SUCCESS' });
       } catch (err) {
@@ -89,79 +89,78 @@ export default function ProductEditScreen() {
     fetchData();
   }, [productId]);
 
-  const submitHandler = async (e) => {
+  const submitHandler = async (e) =>{
     e.preventDefault();
+    
     try {
-      dispatch({ type: 'UPDATE_REQUEST' });
-      await axios.put(
-        `http://localhost:3001/api/products/${productId}`,
-        {
-          id: productId,
-          name,
-          slug,
-          price,
-          image,
-          images,
-          category,
-          brand,
-          countInStock,
-          description,
-        },
-        {
-          headers: { Authorization: `Bearer ${userInfo.token}` },
-        }
-      );
-      dispatch({
-        type: 'UPDATE_SUCCESS',
-      });
-      toast.success('Product updated successfully');
-      navigate('/admin/products');
+    const response = await axios.patch(`http://localhost:3001/api/products/${productId}`, {
+        
+        title,
+        // slug,
+        price,
+        image,
+        // images,
+        category,
+        // countInStock,
+        type,
+        description
+    },
+    {
+      headers: { Authorization: `Bearer ${userInfo.token}` },
+    },
+    );
+    console.log(title, price, image, category, type, description)
+    console.log(response)
+    toast.success('Product updated successfully');
+    navigate('/admin/products'); 
+    return response
+    // toast.success('Product created successfully');
+    
     } catch (err) {
-      toast.error(getError(err));
-      dispatch({ type: 'UPDATE_FAIL' });
+    toast.error(getError(err));
     }
-  };
-  const uploadFileHandler = async (e, forImages) => {
-    const file = e.target.files[0];
-    const bodyFormData = new FormData();
-    bodyFormData.append('file', file);
-    try {
-      dispatch({ type: 'UPLOAD_REQUEST' });
-      const { data } = await axios.post('/api/upload', bodyFormData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          authorization: `Bearer ${userInfo.token}`,
-        },
-      });
+}
+  // const uploadFileHandler = async (e, forImages) => {
+  //   const file = e.target.files[0];
+  //   const bodyFormData = new FormData();
+  //   bodyFormData.append('file', file);
+  //   try {
+  //     dispatch({ type: 'UPLOAD_REQUEST' });
+  //     const { data } = await axios.post('/api/upload', bodyFormData, {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data',
+  //         authorization: `Bearer ${userInfo.token}`,
+  //       },
+  //     });
 
 
       
-      dispatch({ type: 'UPLOAD_SUCCESS' });
+  //     dispatch({ type: 'UPLOAD_SUCCESS' });
 
-      if (forImages) {
-        setImages([...images, data.secure_url]);
-      } else {
-        setImage(data.secure_url);
-      }
-      toast.success('Image uploaded successfully. click Update to apply it');
-    } catch (err) {
-      toast.error(getError(err));
-      dispatch({ type: 'UPLOAD_FAIL', payload: getError(err) });
-    }
-  };
-  const deleteFileHandler = async (fileName, f) => {
-    console.log(fileName, f);
-    console.log(images);
-    console.log(images.filter((x) => x !== fileName));
-    setImages(images.filter((x) => x !== fileName));
-    toast.success('Image removed successfully. click Update to apply it');
-  };
+  //     if (forImages) {
+  //       setImages([...images, data.secure_url]);
+  //     } else {
+  //       setImage(data.secure_url);
+  //     }
+  //     toast.success('Image uploaded successfully. click Update to apply it');
+  //   } catch (err) {
+  //     toast.error(getError(err));
+  //     dispatch({ type: 'UPLOAD_FAIL', payload: getError(err) });
+  //   }
+  // };
+  // const deleteFileHandler = async (fileName, f) => {
+  //   console.log(fileName, f);
+  //   console.log(images);
+  //   console.log(images.filter((x) => x !== fileName));
+  //   setImages(images.filter((x) => x !== fileName));
+  //   toast.success('Image removed successfully. click Update to apply it');
+  // };
   return (
     <Container className="small-container">
       <Helmet>
-        <title>Edit Product ${productId}</title>
+        <title>{`Edit Product ${productId}`}</title>
       </Helmet>
-      <h1>Edit Product {productId}</h1>
+      <h1>{`Edit Product ${productId}`}</h1>
 
       {loading ? (
         <LoadingBox></LoadingBox>
@@ -172,19 +171,19 @@ export default function ProductEditScreen() {
           <Form.Group className="mb-3" controlId="name">
             <Form.Label>Name</Form.Label>
             <Form.Control
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               required
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="slug">
+          {/* <Form.Group className="mb-3" controlId="slug">
             <Form.Label>Slug</Form.Label>
             <Form.Control
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               required
             />
-          </Form.Group>
+          </Form.Group> */}
           <Form.Group className="mb-3" controlId="name">
             <Form.Label>Price</Form.Label>
             <Form.Control
@@ -201,11 +200,11 @@ export default function ProductEditScreen() {
               required
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="imageFile">
+          {/* <Form.Group className="mb-3" controlId="imageFile">
             <Form.Label>Upload Image</Form.Label>
             <Form.Control type="file" onChange={uploadFileHandler} />
             {loadingUpload && <LoadingBox></LoadingBox>}
-          </Form.Group>
+          </Form.Group> */}
 
           {/* <Form.Group className="mb-3" controlId="additionalImage">
             <Form.Label>Additional Images</Form.Label>
@@ -221,14 +220,14 @@ export default function ProductEditScreen() {
               ))}
             </ListGroup>
           </Form.Group> */}
-          <Form.Group className="mb-3" controlId="additionalImageFile">
+          {/* <Form.Group className="mb-3" controlId="additionalImageFile">
             <Form.Label>Upload Aditional Image</Form.Label>
             <Form.Control
               type="file"
               onChange={(e) => uploadFileHandler(e, true)}
             />
             {loadingUpload && <LoadingBox></LoadingBox>}
-          </Form.Group>
+          </Form.Group> */}
 
           <Form.Group className="mb-3" controlId="category">
             <Form.Label>Category</Form.Label>
@@ -241,19 +240,19 @@ export default function ProductEditScreen() {
           <Form.Group className="mb-3" controlId="brand">
             <Form.Label>Brand</Form.Label>
             <Form.Control
-              value={brand}
-              onChange={(e) => setBrand(e.target.value)}
+              value={type}
+              onChange={(e) => setType(e.target.value)}
               required
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="countInStock">
+          {/* <Form.Group className="mb-3" controlId="countInStock">
             <Form.Label>Count In Stock</Form.Label>
             <Form.Control
               value={countInStock}
               onChange={(e) => setCountInStock(e.target.value)}
               required
             />
-          </Form.Group>
+          </Form.Group> */}
           <Form.Group className="mb-3" controlId="description">
             <Form.Label>Description</Form.Label>
             <Form.Control

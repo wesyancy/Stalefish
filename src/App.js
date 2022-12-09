@@ -33,33 +33,31 @@ import OrderListScreen from "./screens/OrderListScreen";
 import UserEditScreen from "./screens/UserEditScreen";
 import MapScreen from "./screens/MapScreen";
 import ProductCreateScreen from "./screens/ProductCreateScreen";
+// import ProductCreateScreen from './screens/ProductCreateScreen';
 
 function App() {
-  
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { fullBox, cart, userInfo } = state;
 
   const signoutHandler = () => {
-    
     ctxDispatch({ type: "USER_SIGNOUT" });
     localStorage.removeItem("userInfo");
     localStorage.removeItem("shippingAddress");
     localStorage.removeItem("paymentMethod");
     window.location.href = "/signin";
   };
-  
   const [sidebarIsOpen, setSidebarIsOpen] = useState(false);
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        
+        // console.log("preparing");
         const { data } = await axios.get(
           `http://localhost:3001/api/products/categories`
         );
         setCategories(data);
-        
+        // console.log("data", data);
       } catch (err) {
         toast.error(getError(err));
       }
@@ -67,6 +65,7 @@ function App() {
     fetchCategories();
   }, []);
 
+  // console.log(categories)
   return (
     <BrowserRouter>
       <div
@@ -78,7 +77,8 @@ function App() {
             : fullBox
             ? "site-container d-flex flex-column full-box"
             : "site-container d-flex flex-column"
-        }>
+        }
+      >
         <ToastContainer position="bottom-center" limit={1} />
         <header>
           <Navbar bg="dark" variant="dark" expand="lg">
@@ -146,7 +146,9 @@ function App() {
             sidebarIsOpen
               ? "active-nav side-navbar d-flex justify-content-between flex-wrap flex-column"
               : "side-navbar d-flex justify-content-between flex-wrap flex-column"
-          }>
+          }
+        >
+          {/* <p>{{categories}}</p> */}
           <Nav className="flex-column text-white w-100 p-2">
             <Nav.Item>
               <strong>Categories</strong>
@@ -211,6 +213,7 @@ function App() {
                 element={<ShippingAddressScreen />}
               ></Route>
               <Route path="/payment" element={<PaymentMethodScreen />}></Route>
+              {/* Admin Routes */}
               <Route
                 path="/admin/dashboard"
                 element={

@@ -1,9 +1,7 @@
 const { client } = require('./')
 
-const { createProduct, getAllProducts, getProductById, destroyProduct } = require('./products')
-const { createUser, getUserById } = require('./users')
-const { createReview, getReviewById, getAllReviews, destroyReview } = require('./reviews')
-const { createCart, addToCart, getCartById, removeFromCart, getAllCarts, destroyCart } = require('./cart')
+const { createProduct, getAllProducts } = require('./products')
+const { createUser } = require('./users')
 
 async function dropTables() {
 
@@ -42,10 +40,9 @@ async function createTables() {
         category VARCHAR NOT NULL,
         rating INTEGER,
         CHECK (rating BETWEEN 0 and 5),
-        numReviews VARCHAR,
         image VARCHAR NOT NULL,
         type varchar(255) NOT NULL,
-        price DECIMAL(19,2) NOT NULL
+        price DECIMAL(19,3) NOT NULL
       );
       CREATE TABLE carts (
         id SERIAL PRIMARY KEY,
@@ -362,122 +359,41 @@ async function createInitialProducts() {
   }
 }
 
-// async function testDeleteProduct() {
 
-//   try {
-    
-//     console.log('Creating Test Products for deletion:')
-    
-//     const testProduct1 = await createProduct({
-//       title:
-//         "The fourth most amazing test product",
-//       description:
-//         "Description for the first most amazing product ever....",
-//       type:
-//         "Product Type 1",
-//       category:"FIRST",
-//       image:'http://placeimg.com/640/480/any',
-//       price:
-//         100
-//     });
+async function createInitialUsers() {
 
-//     console.log("Grabbing products before deletion:", await getAllProducts())
-//     await destroyProduct(26)
-//     console.log("Grabbing products after deletion:", await getAllProducts())
-//   } catch (error) {
-//     throw error
-//   }
-// }
+  console.log("Creating initial users...")
 
-// async function createInitialUsers() {
+  try {
+    const usersToCreate = [
+      { username: "sean", password: "seanpassword", birthday: "09-21-1993", admin: "true" },
+      { username: "gary", password: "garypassword", birthday: "06-11-2022", admin: "true" },
+      { username: "grant", password: "grantpassword", birthday: "07-11-2022", admin: "true" },
+      { username: "wes", password: "wespassword", birthday: "07-11-2022", admin: "true" },
+      { username: "brayden", password: "braydenpassword", birthday: "07-11-2022", admin: "true" }
+    ]
 
-//   console.log("Creating initial users...")
+    const users = await Promise.all(usersToCreate.map(createUser))
 
-//   try {
-//     const usersToCreate = [
-//       { username: "sean", password: "seanpassword", birthday: "09-21-1993", admin: "true" },
-//       { username: "gary", password: "garypassword", birthday: "06-11-2022", admin: "true" },
-//       { username: "grant", password: "grantpassword", birthday: "07-11-2022", admin: "true" },
-//       { username: "wes", password: "wespassword", birthday: "07-11-2022", admin: "true" },
-//       { username: "brayden", password: "braydenpassword", birthday: "07-11-2022", admin: "true" }
-//     ]
+    console.log("Users created:")
+    console.log(users)
+    console.log("Finished creating intial users")
 
-//     const users = await Promise.all(usersToCreate.map(createUser))
-
-//     console.log("Users created:")
-//     console.log(users)
-//     console.log("Finished creating intial users")
-
-//   } catch (error) {
-//     console.error("Error creating initial users")
-//     throw error
-//   }
-// }
-
-// async function createInitialReviews() {
-
-//   console.log("Creating initial reviews...")
-
-//   const [productTest1] = await getAllProducts()
-
-//   try {
-//     const review1 = await createReview({
-//       name: "Review 1",
-//       description: "Review Description 1",
-//       rating: 1,
-//       productId: productTest1.id,
-//       userId: 1
-//     })
-
-    // const review2 = await createReview({
-    //   name: "Review 2",
-    //   description: "Review Description 2",
-    //   rating: 2,
-    //   productId: productTest2.id,
-    //   userId: 2
-    // })
-
-    // const review3 = await createReview({
-    //   name: "Review 3",
-    //   description: "Review Description 3",
-    //   rating: 5,
-    //   productId: productTest3.id,
-    //   userId: 3
-    // });
-
-//     console.log("Finished creating reviews")
-//     console.log("Reviews created:")
-//     console.log(review1)
-
-//   } catch (error) {
-//     console.error("Error creating initial reviews")
-//     throw error
-//   }
-// }
-
-// async function testDeleteReview() {
-
-//   try {
-//     console.log("Grabbing reviews before deletion:", await getAllReviews())
-//     await destroyReview(3)
-//     console.log("Grabbing reviews after deletion:", await getAllReviews())
-
-//   } catch (error) {
-//     throw error
-//   }
-// }
+  } catch (error) {
+    console.error("Error creating initial users")
+    throw error
+  }
+}
 
 async function buildDB() {
 
   try {
-    // need to add something here
+    
     client.connect();
     await dropTables();
     await createTables();
     await createInitialProducts();
-    // await testDeleteProduct();
-    // await createInitialUsers();
-    // await createInitialReviews();
+    await createInitialUsers();
 
   } catch (ex) {
     console.log('Error building the DB')

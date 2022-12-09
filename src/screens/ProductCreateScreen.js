@@ -1,6 +1,8 @@
 
 import React, { useContext, useReducer, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
+import { Store } from '../Store';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Form from 'react-bootstrap/Form';
 import { Helmet } from 'react-helmet-async';
@@ -38,6 +40,9 @@ const reducer = (state, action) => {
 };
 
 const ProductCreateScreen = () => {
+  const navigate = useNavigate();
+  const { state } = useContext(Store);
+  const { userInfo } = state;
 
   const [{ loadingCreate, error, loadingUpdate, loadingUpload }, dispatch] =
     useReducer(reducer, {
@@ -45,33 +50,41 @@ const ProductCreateScreen = () => {
       error: '',
     });
 
-    const [name, setName] = useState('');
-    const [slug, setSlug] = useState('');
+    const [title, setTitle] = useState('');
+    // const [slug, setSlug] = useState('');
     const [price, setPrice] = useState('');
     const [image, setImage] = useState('');
-    const [images, setImages] = useState([]);
+    // const [images, setImages] = useState([]);
     const [category, setCategory] = useState('');
-    const [countInStock, setCountInStock] = useState('');
-    const [brand, setBrand] = useState('');
+    // const [countInStock, setCountInStock] = useState('');
+    const [type, setType] = useState('');
     const [description, setDescription] = useState('');
 
     const submitHandler = async (e) =>{
         e.preventDefault();
         
-        const title = name
         try {
-        await Axios.post('http://localhost:3001/api/products', {
+        const response = await Axios.post('http://localhost:3001/api/products', {
             title,
-            slug,
+            // slug,
             price,
             image,
-            images,
+            // images,
             category,
-            countInStock,
-            brand,
+            // countInStock,
+            type,
             description
-        });
+        },
+        {
+          headers: { Authorization: `Bearer ${userInfo.token}` },
+        },
+        );
+        console.log(title, price, image, category, type, description)
         
+        toast.success('Product created successfully');
+        navigate('/admin/products'); 
+        return response
+        // toast.success('Product created successfully');
         
         } catch (err) {
         toast.error(getError(err));
@@ -90,22 +103,22 @@ const ProductCreateScreen = () => {
           },
         });
         dispatch({ type: 'UPLOAD_SUCCESS' });
-        if (forImages) {
-          setImages([...images, data.secure_url]);
-        } else {
-          setImage(data.secure_url);
-        }
-        toast.success('Image uploaded successfully!');
+        // if (forImages) {
+        //   setImages([...images, data.secure_url]);
+        // } else {
+        //   setImage(data.secure_url);
+        // }
+        // toast.success('Image uploaded successfully!');
       } catch (err) {
         toast.error(getError(err));
         dispatch({ type: 'UPLOAD_FAIL', payload: getError(err) });
       }
     };
   
-    const deleteFileHandler = async (fileName, f) => {
-      setImages(images.filter((x) => x !== fileName));
-      toast.success('Image removed successfully.');
-    };
+    // const deleteFileHandler = async (fileName, f) => {
+    //   setImages(images.filter((x) => x !== fileName));
+    //   toast.success('Image removed successfully.');
+    // };
 
   return (
     <Container className="small-container">
@@ -123,19 +136,19 @@ const ProductCreateScreen = () => {
           <Form.Group className="mb-3" controlId="name">
             <Form.Label>Name</Form.Label>
             <Form.Control
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               required
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="slug">
+          {/* <Form.Group className="mb-3" controlId="slug">
             <Form.Label>Slug</Form.Label>
             <Form.Control
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               required
             />
-          </Form.Group>
+          </Form.Group> */}
           <Form.Group className="mb-3" controlId="name">
             <Form.Label>Price</Form.Label>
             <Form.Control
@@ -152,13 +165,13 @@ const ProductCreateScreen = () => {
               required
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="imageFile">
+          {/* <Form.Group className="mb-3" controlId="imageFile">
             <Form.Label>Upload Image</Form.Label>
             <Form.Control type="file" onChange={uploadFileHandler} />
-            {/* {loadingUpload && <LoadingBox></LoadingBox>} */}
-          </Form.Group>
+            {loadingUpload && <LoadingBox></LoadingBox>}
+          </Form.Group> */}
 
-          <Form.Group className="mb-3" controlId="additionalImage">
+          {/* <Form.Group className="mb-3" controlId="additionalImage">
             <Form.Label>Additional Images</Form.Label>
             {images.length === 0 && <MessageBox>No image</MessageBox>}
             <ListGroup variant="flush">
@@ -171,15 +184,15 @@ const ProductCreateScreen = () => {
                 </ListGroup.Item>
               ))}
             </ListGroup>
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="additionalImageFile">
+          </Form.Group> */}
+          {/* <Form.Group className="mb-3" controlId="additionalImageFile">
             <Form.Label>Upload Aditional Image</Form.Label>
             <Form.Control
               type="file"
               onChange={(e) => uploadFileHandler(e, true)}
             />
-            {/* {loadingUpload && <LoadingBox></LoadingBox>} */}
-          </Form.Group>
+            {loadingUpload && <LoadingBox></LoadingBox>}
+          </Form.Group> */}
 
           <Form.Group className="mb-3" controlId="category">
             <Form.Label>Category</Form.Label>
@@ -192,19 +205,19 @@ const ProductCreateScreen = () => {
           <Form.Group className="mb-3" controlId="brand">
             <Form.Label>Brand</Form.Label>
             <Form.Control
-              value={brand}
-              onChange={(e) => setBrand(e.target.value)}
+              value={type}
+              onChange={(e) => setType(e.target.value)}
               required
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="countInStock">
+          {/* <Form.Group className="mb-3" controlId="countInStock">
             <Form.Label>Count In Stock</Form.Label>
             <Form.Control
               value={countInStock}
               onChange={(e) => setCountInStock(e.target.value)}
               required
             />
-          </Form.Group>
+          </Form.Group> */}
           <Form.Group className="mb-3" controlId="description">
             <Form.Label>Description</Form.Label>
             <Form.Control
@@ -220,7 +233,7 @@ const ProductCreateScreen = () => {
             >
               Update
             </Button>
-            {/* {loadingUpdate && <LoadingBox></LoadingBox>} */}
+            {loadingUpdate && <LoadingBox></LoadingBox>}
           </div>
         </Form>
       {/* )} */}

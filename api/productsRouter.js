@@ -58,7 +58,7 @@ productsRouter.get("/categories", async(req, res, next) => {
 
 productsRouter.post('/', [requireUser, requireAdmin], async(req, res, next) => {
 
-    const { title, description, type, price } = req.body
+    const { title, description, type, category, image, price } = req.body
     const product = {}
 
     try {
@@ -66,6 +66,8 @@ productsRouter.post('/', [requireUser, requireAdmin], async(req, res, next) => {
         product.title = title
         product.description = description
         product.type = type
+        product.category = category
+        product.image = image
         product.price = price
 
         const createdProduct = await createProduct(product)
@@ -106,14 +108,16 @@ productsRouter.get("/:id", async(req, res, next) => {
 productsRouter.patch("/:id", [requireUser, requireAdmin], async(req, res, next) => {
 
     const { id } = req.params;
-    const { title, description, type, price } = req.body;
+    const { title, description, category, type, image, price } = req.body;
     const product = {};
 
     try {
-
+        
         product.title = title
         product.description = description
+        product.category = category
         product.type = type
+        product.image = image
         product.price = price
         product.id = id
 

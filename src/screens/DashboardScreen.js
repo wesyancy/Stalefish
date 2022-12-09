@@ -129,7 +129,7 @@ export default function DashboardScreen() {
                 loader={<div>Loading Chart...</div>}
                 data={[
                   ['Category', 'Products'],
-                  ...summary.productCategories.map((x) => [x.id, x.count]),
+                  ...summary.productCategories.map((x) => [x.id, x.count.length]),
                 ]}
               ></Chart>
             )}
